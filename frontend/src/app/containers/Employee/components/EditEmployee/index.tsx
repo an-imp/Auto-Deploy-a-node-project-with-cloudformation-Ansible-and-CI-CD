@@ -289,7 +289,7 @@ export class EditEmployee extends Component<EditEmployee.Props, EditEmployee.Sta
       { phoneNumber: value },
       requestExecutionCallback,
     );
-  };
+  }
 
   handleCityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
