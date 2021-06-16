@@ -144,7 +144,32 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure   
+      # Here's where you will add some code to rollback on failure
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["a2:75:9d:8f:84:ed:c6:56:06:11:bd:a0:2b:21:64:38"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: ./.circleci/ansible
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Configure server
+          working_directory: ./.circleci/ansible
+          command: |
+            pwd &&
+            ls -la
+            cat inventory
+            ansible-playbook -i inventory configure-server.yaml
+      # Here's where you will add some code to rollback on failure      
 
 workflows:
   # Below is the definition of your workflow.
@@ -168,6 +193,8 @@ workflows:
           requires:
             - build_frontend
       - deploy-infrastructure
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
 
       # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
       # - node/test
