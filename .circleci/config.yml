@@ -128,7 +128,7 @@ jobs:
           working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file frontend.yaml \
+              --template-file frontend.yml \
               --tags project=udapeople-${CIRCLE_WORKFLOW_ID:0:4} \
               --stack-name "frontend-${CIRCLE_WORKFLOW_ID:0:4}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:4}"
