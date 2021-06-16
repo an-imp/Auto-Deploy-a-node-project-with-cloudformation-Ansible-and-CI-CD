@@ -107,6 +107,11 @@
     "sweetalert2": "^8.13.4"
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "rootDir": "src",
     "coverageDirectory": "../coverage",
     "collectCoverage": true,
