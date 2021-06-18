@@ -269,7 +269,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.9.0-alpine
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
@@ -292,6 +292,33 @@ jobs:
             tar -C backend -czvf backend_artifact.tar.gz .
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
+
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: install dependencies
+          working_directory: /tmp
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Backend smoke test.
+          working_directory: ./backend
+          command: |
+            export BACKEND_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/BACKEND_URL)
+            export API_URL="http://${BACKEND_URL}:3030/api/status"
+            echo "${API_URL}"
+            curl ${API_URL}
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:4}.s3-website.eu-central-1.amazonaws.com"
+            curl -s ${URL} | grep -q "Welcome"
 
 workflows:
   # Below is the definition of your workflow.
@@ -331,6 +358,8 @@ workflows:
       - deploy-frontend:
           requires:
             - run-migrations
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 
       # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
       # - node/test
