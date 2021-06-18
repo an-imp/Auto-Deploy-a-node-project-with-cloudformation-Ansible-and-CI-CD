@@ -191,7 +191,9 @@ jobs:
           name: run migrations
           working_directory: ./backend
           command: |
-            npm run migrations > migration_status
+            cat .env
+            npm run migrations | tee migrations-${CIRCLE_WORKFLOW_ID}.txt
+            cat migrations-${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: send results to memstash
           working_directory: ./backend
