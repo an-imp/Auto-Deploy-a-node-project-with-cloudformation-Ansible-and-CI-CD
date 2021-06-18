@@ -38,8 +38,8 @@ function bootstrap() {
             .setVersion('1.0')
             .addTag('customTag')
             .setBasePath(apiVersionPrefix)
-            .addBearerAuth(), x;
-        build();
+            .addBearerAuth()
+            .build();
         const document = swagger_1.SwaggerModule.createDocument(app, options);
         swagger_1.SwaggerModule.setup(`api/${apiVersionPrefix}`, app, document);
         const config = app.get('ConfigService');
