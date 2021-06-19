@@ -311,14 +311,16 @@ jobs:
           working_directory: ./backend
           command: |
             export BACKEND_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7})
-            export API_URL="http://${BACKEND_URL}:3030/api/status"
-            echo "${API_URL}"
-            curl ${API_URL}
+            curl "${BACKEND_URL}/api/status"
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:4}.s3-website.eu-central-1.amazonaws.com"
-            curl -s ${URL} | grep -q "Welcome"
+            if curl -s  "http://udapeople-${CIRCLE_WORKFLOW_ID:0:4}.s3-website-us-west-2.amazonaws.com" | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
 
 workflows:
   # Below is the definition of your workflow.
