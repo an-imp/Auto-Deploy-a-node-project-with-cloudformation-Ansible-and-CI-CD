@@ -176,9 +176,9 @@ jobs:
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
             echo NODE_ENV=production >> "backend/.env"
       - persist_to_workspace:
-          root: .
+          root: ~/project
           paths:
-            - .circleci/ansible/inventory
+            - .circleci/ansible/inventory.txt
             - backend/
       # Here's where you will add some code to rollback on failure
 
@@ -190,7 +190,12 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["a2:75:9d:8f:84:ed:c6:56:06:11:bd:a0:2b:21:64:38"]
       - attach_workspace:
-          at: .
+          at: ~/project
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl
+            pip install awscli
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
@@ -331,7 +336,7 @@ jobs:
           command: |
             Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4})
             echo ${Backend_URL}
-            export API_URL="http://${Backend_URL}:3030/api/status"
+            export API_URL="http://${Backend_URL}:3000/api/status"
             echo "${API_URL}"
             curl ${API_URL}
       - run:
