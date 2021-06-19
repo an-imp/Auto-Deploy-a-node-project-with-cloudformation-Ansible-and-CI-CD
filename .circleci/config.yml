@@ -152,9 +152,17 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> inventory
-            cat inventory
+            curl -H "Content-Type: text/plain" -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" \
+              --request PUT \
+              --data `aws ec2 describe-instances \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:project,Values=backend-${CIRCLE_WORKFLOW_ID:0:4}" \
+                --output text` \
+              https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4}
+              echo URL: https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4}
+              echo Token: aae138e1-6fda-4047-a8c5-6fb024444beb
       - run:
-          name: Add .env vars to backend
+          name: Add .env vars to backend env
           command: |
             echo ENVIRONMENT=production >> backend/.env
             echo TYPEORM_CONNECTION=postgres >> backend/.env
@@ -252,16 +260,27 @@ jobs:
             sudo ./aws/install
       - run:
           name: Rebuild frontend with backend API Url
-          working_directory: ./frontend
           command: |
-            export API_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7})
+            BACKEND_IP=$(curl -H "aae138e1-6fda-4047-a8c5-6fb024444beb" \
+              --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4})
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            npm run build
       - run:
           name: Deploy frontend objects to S3
           working_directory: ./frontend
           command: |
-            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:4}" --recursive
+            BACKEND_IP=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" \
+                --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4})
+
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL=${API_URL}"
+
+            echo API_URL=$API_URL > .env
+            echo ENVIRONMENT=development >> .env
+            cat ".env"
+            npm run build
+            cd dist
+            aws s3 sync . s3://udapeople-${CIRCLE_WORKFLOW_ID:0:4} --delete
       - persist_to_workspace:
           root: .
           paths:
@@ -310,7 +329,7 @@ jobs:
           name: Backend smoke test.
           working_directory: ./backend
           command: |
-            export Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7})
+            Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:7})
             echo ${BACKEND_IP}
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
