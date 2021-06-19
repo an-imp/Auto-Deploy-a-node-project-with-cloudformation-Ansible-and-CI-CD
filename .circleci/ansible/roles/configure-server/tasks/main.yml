@@ -15,23 +15,12 @@
   apt:
     autoremove: yes
 
-- name: "install nodejs and npm"
+- name: "install npm package"
   become: yes
   apt:
-    name: ["nodejs", "npm"]
+    name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
     state: latest
     update_cache: yes
-
-- name: "install n"
-  become: yes
-  npm:
-    name: n
-    global: yes
-    production: yes
-
-- name: "install nodejs 13.8.0"
-  become: yes
-  shell: n 13.8.0
 
 - name: "install pm2"
   become: yes
@@ -40,6 +29,7 @@
     global: yes
     production: yes
     state: present
+
 - name: Create dist directory.
   file:
     path: "~/home/ubuntu/backend"
