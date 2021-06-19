@@ -329,7 +329,7 @@ jobs:
           name: Backend smoke test.
           working_directory: ./backend
           command: |
-            Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:7})
+            Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/deployed-url-${CIRCLE_WORKFLOW_ID:0:4})
             echo ${BACKEND_IP}
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
