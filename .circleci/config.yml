@@ -225,12 +225,12 @@ jobs:
           name: send results to memstash
           working_directory: ./backend
           command: |
-            if grep -q "has been executed successfully" migrations-${CIRCLE_WORKFLOW_ID}.txt
+            if grep -q "success" migrations-${CIRCLE_WORKFLOW_ID}.txt
             then
-              echo "DB migration was successful, will update memstash..."
+              echo "Migration success"
               curl -H "Content-Type: text/plain" -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             else
-              echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
+              echo "Migration failed"
               curl -H "Content-Type: text/plain" -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             fi
             echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
@@ -310,8 +310,9 @@ jobs:
           name: Backend smoke test.
           working_directory: ./backend
           command: |
-            Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7})
-            export API_URL="http://${BACKEND_IP}:3030/api/status""
+            export Backend_URL=$(curl -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7})
+            echo ${BACKEND_IP}
+            export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
             curl ${API_URL}
       - run:
