@@ -10,6 +10,7 @@ commands:
         type: string
     steps:
       - run:
+          when: on_fail
           name: Destroy udapeople backend
           command: |
             aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
