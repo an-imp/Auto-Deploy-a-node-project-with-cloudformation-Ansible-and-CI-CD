@@ -168,7 +168,7 @@ jobs:
             echo "[web]" > inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID:0:4}" \
               --output text >> inventory.txt
             curl -H "Content-Type: text/plain" -H "token: aae138e1-6fda-4047-a8c5-6fb024444beb" \
               --request PUT \
