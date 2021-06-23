@@ -51,7 +51,9 @@ jobs:
       - run:
           name: build backend
           working_directory: ./backend
-          command: npm run build
+          command: |
+            npm i &&\
+            npm run build
       - persist_to_workspace:
           root: ~/
           paths:
@@ -65,7 +67,9 @@ jobs:
       - run:
           name: build front end
           working_directory: ./frontend
-          command: npm run build
+          command: |
+            npm i &&\
+            npm run build
       - persist_to_workspace:
           root: ~/
           paths:
@@ -81,9 +85,9 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            cd backend &&\
-            npm i &&\
-            npm run build
+            cd backend
+            npm audit fix
+            npm run test
 
   test_frontend:
     docker:
