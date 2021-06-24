@@ -371,7 +371,7 @@ jobs:
             echo ${Backend_URL}
             export API_URL="http://${Backend_URL}:3030/api/status"
             echo "${API_URL}"
-            # curl ${API_URL} This line is not working.
+            curl ${API_URL}
       - run:
           name: Frontend smoke test.
           command: |
